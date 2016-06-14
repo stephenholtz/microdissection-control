@@ -10,17 +10,9 @@ imaqreset;
 % Device Properties from imaqtool
 adaptorName = 'pointgrey';
 deviceID = 1;
-vidFormat = 'F7_Mono8_1280x960_Mode0';
+vidFormat = 'F7_Mono16_2048x2048_Mode0';
 I = imaq.VideoDevice(adaptorName,deviceID,vidFormat);
 %disp(I.DeviceProperties)
+I.release()
+I.DeviceProperties.TriggerDelayMode = 'Off';
 fprintf('\t\t\t[Done]\n');
-
-%% Normal Settings 
-I.release();
-I.DeviceProperties.FrameRateMode = 'Manual';
-I.DeviceProperties.FrameRate = 30;
-I.DeviceProperties.SharpnessMode = 'Manual';
-I.DeviceProperties.Sharpness = 0;
-I;
-
-%%

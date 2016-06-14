@@ -11,11 +11,11 @@ fprintf('Initializing DAQ channels ');
 daqreset;
 % D = daq.getDevices;
 S = daq.createSession('ni');
-S.Rate = 50E3;
+S.Rate = 100E3;
 
 % Analog Input -- currently unused
-% ai(1) = S.addAnalogInputChannel('Dev1',0','Voltage');
-% ai(1).Name = 'Photodiode Out';
+ai(1) = S.addAnalogInputChannel('Dev1',0','Voltage');
+ai(1).Name = 'Laser Sync Out';
 % use02sensor = 0;
 % if use02sensor 
 %     ai(2) = S.addAnalogInputChannel('Dev1',1,'Voltage');
@@ -28,73 +28,76 @@ S.Rate = 50E3;
 
 % Digital IO
 dio(1) = S.addDigitalChannel('Dev1','port0/line0','OutputOnly');
-dio(1).Name = 'Laser Trigger';
-dio(2) = S.addDigitalChannel('Dev1','port0/line1','InputOnly');
-dio(2).Name = 'Laser Sync Out';
+dio(1).Name = 'Laser Ext Trigger';
+dio(2) = S.addDigitalChannel('Dev1','port0/line1','OutputOnly');
+dio(2).Name = 'Solenoid Gate';
 dio(3) = S.addDigitalChannel('Dev1','port0/line2','OutputOnly');
-dio(3).Name = 'Shutter Trigger';
-dio(4) = S.addDigitalChannel('Dev1','port0/line3','OutputOnly');
-dio(4).Name = 'Solenoid Command';
+dio(3).Name = 'Shutter Gate';
 % dio(4) = S.addDigitalChannel('Dev1','port0/line4','InputOnly');
 % dio(4).Name = 'Shutter Output';
 
 fprintf('\t\t\t[Done]\n');
 fprintf('Set Uniblitz shutter driver to STD, N.O., and Remote\n');
+fprintf('Verify interlock functional.\n');
+fprintf('Verify gas purge ready.\n');
 
-%% Make signals
+%% Make/send signals
 % Pulse frequency etc.,
 pulseFreqHz = 100;
-nPulsesShuttered = 50;
-nPulsesOpened = 60;
-durPurgeSeconds = 10;
-
-% Requires one extra pulse to initiate (not documented)
-nPulsesShuttered = nPulsesShuttered + 1;
+nPulsesShuttered = 200; % @100Hz, typically takes 150 pulses to stabilize
+nPulsesOpened = 50;
+% Time before sending data to daq (to purge laser line)
+durPurgeSeconds = 5;
 
 % Short buffer in the beginning baseline period
-pre = 0*ones(1,S.Rate * .25);
+pre = 0*ones(1,S.Rate * .05);
 
-% Make each pulse 100ns
-pulse = [0*ones(1,(S.Rate * 1/pulseFreqHz)-(0.0001*S.Rate)) 1*ones(1,(0.0001*S.Rate)) ];
+% Make each pulse a single sample, needs to be shorter than 50ns
+pulse = [0*ones(1,(S.Rate * 1/pulseFreqHz)-2) 1 0 ];
 
 % Append and format for queue data
-dioPulses = [pre repmat(pulse,1,nPulsesShuttered) repmat(pulse,1,nPulsesOpened)];
+dioPulses = [pre repmat(pulse,1,nPulsesShuttered+nPulsesOpened)];
 
-% Open the shutter after a some laser pulses
+%Open the shutter after a some laser pulses
 nWaitSamples = nPulsesShuttered*length(pulse);
 dioShutter = [pre 0*ones(1,nWaitSamples)];
-dioShutter = [dioShutter 1*ones(1,length(dioPulses) - length(dioShutter))];
+dioShutter = [dioShutter 1*ones(1,length(dioPulses) - (length(dioShutter))-1) 0];
 % Add slop for the laser-shutter timing
-dioShutter = circshift(dioShutter,[0.001*S.Rate,0]);
+%dioShutter = circshift(dioShutter,[0.001*S.Rate,0]);
 
-% Add off ending
+% Add beginning padding and off ending
 post = 0*ones(1,S.Rate * .1);
 dioPulses = [dioPulses post]';
 dioShutter = [dioShutter post]';
-dioSolenoid = 0.*dioShutter';
+dioSolenoid = 0.*dioPulses;
 
 % Final command
-dataOut = [dioPulses dioShutter dioSolenoid];
-
-%% Send signals
+dataOut = [dioPulses dioSolenoid dioShutter];
 
 % Make sure we start at zero
-S.outputSingleScan([ 0 0 ]);
-% Time before sending data to daq (to prepare line)
-tDelayPrePulseSeconds = 2;
+S.outputSingleScan([ 0 0 0 ]);
 
-% Start out zeroed
-S.outputSingleScan([ 0 0 ]);
 % Queue output data
 S.queueOutputData(dataOut);
 
 % Warn user + start data trans
+fprintf('\nPrepare for lasing\n**********************\n')
+fprintf('Press "START LASER EXT. TRIG" with %d MAX PULSES @%dHz\n',nPulsesShuttered+nPulsesOpened,pulseFreqHz)
 fprintf('Ensure purge line is open\n')
-fprintf('Data being sent for %.2f seconds\n',size(dataOut,1)/S.Rate)
-dataIn = S.startForeground();
+fprintf('Press any key to continue\n')
+pause()
+fprintf('\t\tRunning\n')
 
-% Make sure to end at zero
-S.outputSingleScan([ 0 0 ]);
+% Allow laser line to purge
+fprintf('\t\tPurging Line\n')
+pause(durPurgeSeconds)
+
+% Requires one pulse to initiate (not well documented)
+S.outputSingleScan([ 1 0 0 ]);
+fprintf('\t\tLasing\n')
+dataIn = S.startForeground();
+S.outputSingleScan([ 0 0 0 ]);
+fprintf('\t\tDone!\n')
 
 %% Display output
 close all;
@@ -103,4 +106,3 @@ figure;
 plot(dataOut);
 hold on
 plot(dataIn);
-legend('Pulse Command','Shutter Command','Solenoid Command','Laser Sync Out')
