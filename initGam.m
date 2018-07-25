@@ -43,9 +43,11 @@ fprintf('Verify gas purge ready.\n');
 
 %% Make/send signals
 % Pulse frequency etc.,
-pulseFreqHz = 100;
-nPulsesShuttered = 200; % @100Hz, typically takes 150 pulses to stabilize
-nPulsesOpened = 50;
+pulseFreqHz = 20;
+nPulsesShuttered = 200; % @100Hz, typically takes 150 pulses to stabilize, fewer if going <100Hz
+%nPulsesOpened = 300; % muscle ablation >200
+nPulsesOpened = 45; % JO dissection ~20-40
+
 % Time before sending data to daq (to purge laser line)
 durPurgeSeconds = 5;
 
