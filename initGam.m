@@ -9,13 +9,13 @@ fprintf('\n************************\n');
 fprintf('Initializing DAQ channels ');
 
 daqreset;
-% D = daq.getDevices;
 S = daq.createSession('ni');
 S.Rate = 100E3;
 
 % Analog Input -- currently unused
 ai(1) = S.addAnalogInputChannel('Dev1',0','Voltage');
 ai(1).Name = 'Laser Sync Out';
+
 % use02sensor = 0;
 % if use02sensor 
 %     ai(2) = S.addAnalogInputChannel('Dev1',1,'Voltage');
@@ -28,18 +28,18 @@ ai(1).Name = 'Laser Sync Out';
 
 % Digital IO
 dio(1) = S.addDigitalChannel('Dev1','port0/line0','OutputOnly');
-dio(1).Name = 'Laser Ext Trigger';
+dio(1).Name = 'Laser External Trigger Output';
 dio(2) = S.addDigitalChannel('Dev1','port0/line1','OutputOnly');
-dio(2).Name = 'Solenoid Gate';
+dio(2).Name = 'Laser Line N2 Purge Solenoid Gate';
 dio(3) = S.addDigitalChannel('Dev1','port0/line2','OutputOnly');
-dio(3).Name = 'Shutter Gate';
-% dio(4) = S.addDigitalChannel('Dev1','port0/line4','InputOnly');
-% dio(4).Name = 'Shutter Output';
+dio(3).Name = 'Laser Table Shutter Gate';
+dio(4) = S.addDigitalChannel('Dev1','port0/line3','OutputOnly');
+dio(4).Name = 'Prep Area N2 Purge Solenoid Gate';
 
 fprintf('\t\t\t[Done]\n');
 fprintf('Set Uniblitz shutter driver to STD, N.O., and Remote\n');
-fprintf('Verify interlock functional.\n');
-fprintf('Verify gas purge ready.\n');
+fprintf('Verify laser interlock is functional.\n');
+fprintf('Verify nitrogen purge valves configured correctly.\n');
 
 %% Make/send signals
 % Pulse frequency etc.,
