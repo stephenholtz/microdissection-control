@@ -1,15 +1,25 @@
 %% Assert checkpoints for manual configuration steps
-pump.utils.initSystem()
+clear all force;
+close all force;
 
-%% Start national instruments daq
-pump.daq.init()
+pump.initWarningDlgs()
 
-%% Start camera ROI GUI
-pump.cam.init()
-pump.cam.roiGUI()
+%% Initalize interfaces
+
+% Start national instruments daq
+D = pump.daq();
+
+% Start camera interface
+C = pump.cam();
 
 %% configure dissection
 
 
-%% run system
+%% run dissection
 
+%%
+for i = 1:100
+    [frame,metadata] = step(C.dev);
+    imagesc(frame)
+    pause(.1)
+end
