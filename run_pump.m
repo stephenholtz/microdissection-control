@@ -1,25 +1,28 @@
-%% Assert checkpoints for manual configuration steps
-clear all force;
+%% Set up workspace
+clear all force; %#ok<*CLALL>
 close all force;
-
+% Assert checkpoints for manual configuration steps
 pump.initWarningDlgs()
 
-%% Initalize interfaces
-
-% Start national instruments daq
+%% Initalize national instruments daq interface
 D = pump.daq();
 
-% Start camera interface
-C = pump.cam();
+%% Open up ROI/Camera GUI
+%R = pump.roiGUI();
 
-%% configure dissection
+%% configure/run dissection
 
+% Set number of shuttered pulses (stabilization time)
+D.nShutteredPulses = 100;
+% Set number of delivered (unshuttered) pulses
+D.nDeliveredPulses = 100;
+% Set the frequency of pulses (60-100Hz)
+D.pulseFrequency = 100;
+% Set duration of the N2 purge prior to lasing
+D.purgeDurSeconds = 5;
 
-%% run dissection
-
-%%
-for i = 1:100
-    [frame,metadata] = step(C.dev);
-    imagesc(frame)
-    pause(.1)
+% Prompt manual entry into laser control software
+config_complete = pump.initGAMDlgs(D.nDeliveredPulses + D.nShutteredPulses);
+if config_complete
+    D.runDissection()
 end

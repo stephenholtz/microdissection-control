@@ -2,7 +2,7 @@ Laser alignment and general configuration notes
 ===============================================
 
 ### Current Stats
-- *Max energy* (post-refill 100Hz@15kV): 1.70mJ 
+- *Max energy* (post-refill 100Hz@15kV): 1.95mJ 
     - [GAM Laser factory measurement: 4.0mJ]
 - *Max power* (post-refill 250Hz@15kV): 0.36W
     - [GAM Laser factory measurement: 3.0W] 
