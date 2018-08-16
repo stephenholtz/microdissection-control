@@ -5,7 +5,7 @@ function initWarningDlgs()
         return
     end
 
-    r = questdlg('Open GAM Laser Softwave.','P.U.M.P. Initalization','Complete','Abort','Abort');
+    r = questdlg('Switch laser on and open GAM Laser Software.','P.U.M.P. Initalization','Complete','Abort','Abort');
     if ~strcmp(r,'Complete')
         return
     end

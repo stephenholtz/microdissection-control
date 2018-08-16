@@ -18,11 +18,13 @@ D.nShutteredPulses = 100;
 D.nDeliveredPulses = 100;
 % Set the frequency of pulses (60-100Hz)
 D.pulseFrequency = 100;
-% Set duration of the N2 purge prior to lasing
-D.purgeDurSeconds = 5;
+% Set duration of the N2 purge prior to lasing (10 seconds is OK)
+D.purgeDurSeconds = 10;
 
 % Prompt manual entry into laser control software
 config_complete = pump.initGAMDlgs(D.nDeliveredPulses + D.nShutteredPulses);
 if config_complete
-    D.runDissection()
+    % It sometimes takes >10 seconds to be ready to fire
+    pause(12-D.purgeDurSeconds)
+    dataIn = D.runDissection();
 end
