@@ -2,17 +2,18 @@ classdef roiGUI
     properties
         camDev
         displayTimer
+        frame
     end
 
     properties (Constant)
         % Device Properties from imaqtool
         adaptorName = 'pointgrey';
         deviceID = 1;
-        vidFormat = 'F7_Mono8_1024x1024_Mode1'; % more manageable size
-        %vidFormat = 'F7_Raw8_1024x1024_Mode2'; % more manageable size
-        FrameRate = 50
+        vidFormat = 'F7_Mono8_1024x1024_Mode1';
+        FrameRate = 30;
         
-        displayRateHz = 4;
+        % GUI properties
+        displayRateHz = 30;
         
         um_per_pix_mode0 = 10/214.7; % 
         um_per_pix_mode2 = 10/107.3; %
@@ -20,16 +21,11 @@ classdef roiGUI
     
     methods
         function obj = roiGUI()
-            
+            % Start camera interface
             obj = obj.initCam();
             
-            % Create timer for refreshing GUI with camera grabs
-            obj.displayTimer = timer();
-            obj.displayTimer.BusyMode = 'drop';
-            obj.displayTimer.Period = 1/obj.displayRateHz;
-            obj.displayTimer.ExecutionMode = 'fixedRate';
-            
-            % Create the roi GUI
+            % Start GUI 
+            %obj = obj.initGUI();
             
         end
         
@@ -47,9 +43,26 @@ classdef roiGUI
             fprintf('Done\n');
         end
         
-        function obj = initGUI()
+        function obj = initGUI(obj)
+            fprintf('Initializing PtGrey camera... ');
+            figure;
             
+            % Create timer for refreshing GUI with camera grabs
+            delete(timerfindall); delete(timerfindall);
+
+            obj.displayTimer = timer();
+            obj.displayTimer.StartDelay = 0; % Start asap
+            obj.displayTimer.BusyMode = 'drop';
+            obj.displayTimer.Period = round(1/obj.displayRateHz,3);
+            obj.displayTimer.ExecutionMode = 'fixedRate';
+            obj.displayTimer.TimerFcn = @obj.newFrame;
+            start(obj.displayTimer)
+            
+            fprintf('Done\n');
+        end
+        
+        function obj = newFrame(obj,~,~)
+            obj.frame = step(obj.camDev);
         end
     end
-    
 end
