@@ -12,7 +12,7 @@ d1 = 113; % on a +/-20mm manipulator
 % from exit of 2" cube to front of UV projection objective 
 d2 = 58; % fixed
 
-d3 = 15;
+d3 = 15; % 15mm rms offset
 
 % Idealized dist bn center of the obj lens and rear end of obj
 lens_dist_from_obj_rear = length_obj + wd_obj - f_obj; % 
