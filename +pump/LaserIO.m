@@ -1,4 +1,4 @@
-classdef daq
+classdef LaserIO
     properties
         session
     end
@@ -20,6 +20,10 @@ classdef daq
         % seconds prior to dissection to begin specimen purge
         % means the shuttered pulses must be at least this duration
         specimen_purge_time_s = 0.500; % half a second is fine
+        
+        % time between clicking "START LASER" or "START LASER EXT. TRIG"
+        % and when lasing or closed loop feed back starts, respectively
+        laser_start_delay_s = 7.25;
     end
     
     properties
@@ -73,6 +77,9 @@ classdef daq
         end
         
         function [dataIn,obj] = runDissection(obj)
+            % Approximate time of function call
+            t_start = tic();
+            
             fprintf('Running dissection:');
 
             % Construct and queue digital output data first
@@ -100,6 +107,17 @@ classdef daq
             dataOut = [pulsesDataOut post; laserLineSolenoidDataOut post; shutterDataOut post; specimenSolenoidDataOut post];
             obj.session.queueOutputData(dataOut');
 
+            % Make sure the laser has enough time to start up, delay if not
+            if toc(t_start) + obj.purgeDurSeconds < obj.laser_start_delay_s
+                fprintf('\n\tWaiting for laser to initalize');
+                while toc(t_start) + obj.purgeDurSeconds < obj.laser_start_delay_s
+                    pause(0.05);
+                end
+                fprintf('.. Done\n');
+            else
+                warning('Purge duration is too long, laser may time out!')
+            end
+            
             fprintf('\n\tPurging Laser Line for %d seconds',obj.purgeDurSeconds);
             obj.openLaserLineSolenoid(false);
             pause(obj.purgeDurSeconds);
