@@ -12,18 +12,20 @@ d1 = 113; % on a +/-20mm manipulator
 % from exit of 2" cube to front of UV projection objective 
 d2 = 58; % fixed
 
+d3 = 15;
+
 % Idealized dist bn center of the obj lens and rear end of obj
 lens_dist_from_obj_rear = length_obj + wd_obj - f_obj; % 
 lens_dist_from_obj_front = f_obj - wd_obj; % 
 
 % total dist bn aperture and obj idealized lens
-aperture_to_lens_dist = d1+d2-lens_dist_from_obj_rear; %
+aperture_to_lens_dist = d1+d2+d3-lens_dist_from_obj_rear; %
 
 %% Calculate required distances
 
 % Can fill ~5000um aperture "safely" 
 % ~5-8x demag is good for the small dissections
-demag = 12;
+demag = 8;
 
 % thin lens eq. distance to projected image (from lens)
 dist_img = f_obj * (demag+1) / demag;
