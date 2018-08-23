@@ -5,6 +5,7 @@ close all force;
 pump.initWarningDlgs()
 
 %% Initalize national instruments daq interface
+clear all; close all; clc;
 L = pump.LaserIO();
 
 %% Open up ROI/Camera GUI

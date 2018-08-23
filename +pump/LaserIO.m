@@ -19,7 +19,7 @@ classdef LaserIO
         
         % seconds prior to dissection to begin specimen purge
         % means the shuttered pulses must be at least this duration
-        specimen_purge_time_s = 0.500; % half a second is fine
+        specimen_purge_time_s = 1; % a second is enough
         
         % time between clicking "START LASER" or "START LASER EXT. TRIG"
         % and when lasing or closed loop feed back starts, respectively
@@ -40,7 +40,7 @@ classdef LaserIO
     end
     
     methods
-        function obj = daq()
+        function obj = LaserIO()
             fprintf('Initializing DAQ channels for laser dissection');
             close all force;
             daqreset;
