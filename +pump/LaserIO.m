@@ -5,11 +5,11 @@ classdef LaserIO
     
     properties (Constant)
         % DAQ settings
-        rate = 100E3
+        rate = 250E3/2; % Run at half max rate (two sampling AI)
         
         % Analog input names
         ai_0 = 'Laser Sync Input';
-        ai_1 = 'Laser Energy Input';
+        ai_1 = 'Table Photodiode Input';
         
         % Digital IO names
         dio_p0_l0 = 'Laser External Trigger Output';
@@ -23,7 +23,7 @@ classdef LaserIO
         
         % time between clicking "START LASER" or "START LASER EXT. TRIG"
         % and when lasing or closed loop feed back starts, respectively
-        laser_start_delay_s = 7.25;
+        laser_start_delay_s = 8; % previously set to 7.25
     end
     
     properties
@@ -49,10 +49,14 @@ classdef LaserIO
             obj.session.Rate = obj.rate;
             
             % Analog Input
-            obj.session.addAnalogInputChannel('Dev1',0','Voltage');
+            obj.session.addAnalogInputChannel('Dev1',0,'Voltage');
+            obj.session.addAnalogInputChannel('Dev1',1,'Voltage');
+            
+            % % Analog Output
+            obj.session.addAnalogOutputChannel('Dev1',0,'Voltage');
             
             % Digital IO
-            obj.session.addDigitalChannel('Dev1','port0/line0','OutputOnly');
+            %obj.session.addDigitalChannel('Dev1','port0/line0','OutputOnly');
             obj.session.addDigitalChannel('Dev1','port0/line1','OutputOnly');
             obj.session.addDigitalChannel('Dev1','port0/line2','OutputOnly');
             obj.session.addDigitalChannel('Dev1','port0/line3','OutputOnly');
@@ -76,20 +80,21 @@ classdef LaserIO
             fprintf('Initalization Complete.\n');
         end
         
-        function [dataIn,obj] = runDissection(obj)
+        function [dataIn,dataOut,obj] = runDissection(obj)
             % Approximate time of function call
             t_start = tic();
             
             fprintf('Running dissection:');
-
+            
             % Construct and queue digital output data first
 
             % Short buffer for the beginning and end
             pre = 0*ones(1,obj.session.Rate * .05);
             post = 0*ones(1,obj.session.Rate * .05);
 
-            % Make each pulse a single sample, needs to be shorter than 50ns
-            pulse = [0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-2) 1 0 ];
+            % Make each 10us minimum, 5V with no negative going parts, 
+            % impedance is 2kOhm using 5V analog output fixes noise issues
+            pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-10) ones(1,5)  0.*ones(1,5)];
 
             % Append and format for queue data NOTE: requires one "extra"
             pulsesDataOut = [pre repmat(pulse,1,obj.nShutteredPulses + 1 + obj.nDeliveredPulses)];
@@ -106,7 +111,7 @@ classdef LaserIO
 
             dataOut = [pulsesDataOut post; laserLineSolenoidDataOut post; shutterDataOut post; specimenSolenoidDataOut post];
             obj.session.queueOutputData(dataOut');
-
+            
             % Make sure the laser has enough time to start up, delay if not
             if toc(t_start) + obj.purgeDurSeconds < obj.laser_start_delay_s
                 fprintf('\n\tWaiting for laser to initalize');
@@ -123,7 +128,7 @@ classdef LaserIO
             pause(obj.purgeDurSeconds);
             fprintf('.. Done\n');
 
-            fprintf('\n\tRunning Laser\n\t\tPulses Shuttered %d\n\t\tPulses Delivered %d\n\t\tPulseFrequency %d',...
+            fprintf('\n\tRunning Laser\n\t\tPulses Shuttered %d\n\t\tPulses Delivered %d\n\t\tPulse Frequency %d',...
                 obj.nShutteredPulses,obj.nDeliveredPulses,obj.pulseFrequency);
             dataIn = obj.session.startForeground();
 

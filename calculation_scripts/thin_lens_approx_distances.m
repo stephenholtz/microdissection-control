@@ -1,31 +1,48 @@
-%% Add up known distances from measurments / spec sheets
+%% Known Measurements:
 
-% obj: LMU-10X-193
-%f_obj = 20-(15-12.9); % assuming error in wd is same as for f here...
-f_obj = 20;
+% From Thorlabs tech support re: "wrong" working distance:
+% """
+% The LMU-10X objective is a monochromatic objective and shows a 
+% significant chromatic focal shift especially for DUV wavelengths. For 
+% 193nm the focal length is 18.2mm and the working distance is reduced 
+% nominal to 13.17mm. So the measured 12.9mm working distance is within 
+% the tolerance range.
+% """ 
+%
+% Assuming I slightly underestimated the WD assume @ 193nm
+%   WD = 12.9 +/-0.2mm -(+100um)-> 13 +/- 0.1mm
+%   f = 17.93 +/-0.2mm -(+100um)-> 18.03 +/- 0.1mm
+
+% objective: LMU-10X-193
+f_obj = 18.03;
 length_obj = 32.6;
-wd_obj = 12.9;
+wd_obj = 13;
 
-% from aperture (the "object") to exit of 2" cube
-d1 = 113; % on a +/-20mm manipulator
+% table optics distances
 
-% from exit of 2" cube to front of UV projection objective 
-d2 = 58; % fixed
+% flexible distance from aperture to front face of 2" cube assembly
+% aperture sits 20.5mm from font face of aperture holder in current config
+% practical minimum is ~20mm + aperture holder dist (20.5mm)
+d0 = 25 + 20.5; 
 
-d3 = 15; % 15mm rms offset
+% from entry face of 2" cube assembly to front face of UV obj
+d1 = 101.5+71.5; % error likely as bad as +/-0.25mm!!!
 
 % Idealized dist bn center of the obj lens and rear end of obj
-lens_dist_from_obj_rear = length_obj + wd_obj - f_obj; % 
+%lens_dist_from_obj_rear = length_obj + wd_obj - f_obj; % 
 lens_dist_from_obj_front = f_obj - wd_obj; % 
 
 % total dist bn aperture and obj idealized lens
-aperture_to_lens_dist = d1+d2+d3-lens_dist_from_obj_rear; %
+aperture_to_lens_dist = d0+d1-lens_dist_from_obj_front; % d0 flexible
 
 %% Calculate required distances
 
-% Can fill ~5000um aperture "safely" 
-% ~5-8x demag is good for the small dissections
-demag = 8;
+% Can fill ~5000um aperture with relatively uniform beam
+% empirically ~8x demag is good for the small dissections
+% set to 11x now due to space constraints and exp urgency
+demag = 11;
+
+disp(['Distances for components with demag = ' num2str(demag)])
 
 % thin lens eq. distance to projected image (from lens)
 dist_img = f_obj * (demag+1) / demag;
