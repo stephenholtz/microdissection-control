@@ -4,8 +4,14 @@ classdef LaserIO
     end
     
     properties (Constant)
-        % DAQ settings
-        rate = 250E3/2; % Run at half max rate (two sampling AI)
+        % DAQ settings for NI PCIe-6361 w/ BNC-2090A
+        %  - 2 AO (2.86 MS/s)
+        %  - 16 AI (16-Bit, 2 MS/s)
+        %  - 24 DIO
+        daq_dev = 'Dev2';
+        
+        %rate = 250E3/2; % Run at half max rate (two sampling AI)
+        rate = 2E4/2; % Run at half max rate (two sampling AI)
         
         % Analog input names
         ai_0 = 'Laser Sync Input';
@@ -49,17 +55,17 @@ classdef LaserIO
             obj.session.Rate = obj.rate;
             
             % Analog Input
-            obj.session.addAnalogInputChannel('Dev1',0,'Voltage');
-            obj.session.addAnalogInputChannel('Dev1',1,'Voltage');
+            obj.session.addAnalogInputChannel(obj.daq_dev,0,'Voltage');
+            obj.session.addAnalogInputChannel(obj.daq_dev,1,'Voltage');
             
             % % Analog Output
-            obj.session.addAnalogOutputChannel('Dev1',0,'Voltage');
+            obj.session.addAnalogOutputChannel(obj.daq_dev,0,'Voltage');
             
             % Digital IO
-            %obj.session.addDigitalChannel('Dev1','port0/line0','OutputOnly');
-            obj.session.addDigitalChannel('Dev1','port0/line1','OutputOnly');
-            obj.session.addDigitalChannel('Dev1','port0/line2','OutputOnly');
-            obj.session.addDigitalChannel('Dev1','port0/line3','OutputOnly');
+            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line0','OutputOnly');
+            obj.session.addDigitalChannel(obj.daq_dev,'port0/line1','OutputOnly');
+            obj.session.addDigitalChannel(obj.daq_dev,'port0/line2','OutputOnly');
+            obj.session.addDigitalChannel(obj.daq_dev,'port0/line3','OutputOnly');
             fprintf('.. Done\n');
 
             % Set non-dissection statuses
@@ -94,7 +100,8 @@ classdef LaserIO
 
             % Make each 10us minimum, 5V with no negative going parts, 
             % impedance is 2kOhm using 5V analog output fixes noise issues
-            pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-10) ones(1,5)  0.*ones(1,5)];
+            %pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-10) ones(1,5)  0.*ones(1,5)];
+            pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-40) ones(1,20)  0.*ones(1,20)];
 
             % Append and format for queue data NOTE: requires one "extra"
             pulsesDataOut = [pre repmat(pulse,1,obj.nShutteredPulses + 1 + obj.nDeliveredPulses)];

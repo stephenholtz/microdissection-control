@@ -15,7 +15,7 @@ L = pump.LaserIO();
 % Set number of shuttered pulses (stabilization time)
 L.nShutteredPulses = 250;
 % Set number of delivered (unshuttered) pulses
-L.nDeliveredPulses = 160;
+L.nDeliveredPulses = 225;
 % Set the frequency of pulses
 L.pulseFrequency = 100; % 60-100Hz is stable for closed loop / ext trig
 % Set duration of the N2 purge prior to lasing (10 seconds is OK)
@@ -27,3 +27,8 @@ if config_complete
     % daq data in/out for debugging
     [dataIn,dataOut] = L.runDissection();
 end
+
+%% Save notes / data on server for documentation
+currtime = datestr(now,30);
+save(['Z:\Wilson Lab\holtz\pump_prep_images\data_' currtime '.mat'],'dataIn','-v7')
+copyfile('C:\Users\user\Desktop\temp_notes.txt',['Z:\Wilson Lab\holtz\pump_prep_images\notes_' currtime '.txt'])
