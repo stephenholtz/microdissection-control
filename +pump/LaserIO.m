@@ -10,7 +10,6 @@ classdef LaserIO
         %  - 24 DIO
         daq_dev = 'Dev2';
         
-        %rate = 250E3/2; % Run at half max rate (two sampling AI)
         rate = 2E4/2; % Run at half max rate (two sampling AI)
         
         % Analog input names

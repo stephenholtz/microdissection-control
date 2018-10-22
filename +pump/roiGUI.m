@@ -64,5 +64,9 @@ classdef roiGUI
         function obj = newFrame(obj,~,~)
             obj.frame = step(obj.camDev);
         end
+        
+        function obj = saveImg(obj,filepath)
+            
+        end
     end
 end
