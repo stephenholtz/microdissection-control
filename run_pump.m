@@ -10,7 +10,7 @@ L = pump.LaserIO();
 %% Open up ROI/Camera GUI
 use_roi_gui = 0;
 if use_roi_gui
-    R = pump.roiGUI();
+    R = pump.roiGUI(); %#ok<*UNRCH>
 end
 %% configure/run dissection
 savepath = 'Z:\Wilson Lab\holtz\pump_prep_images\';
@@ -38,5 +38,5 @@ if config_complete
 end
 
 %% Save notes / data on server for documentation
-save(fullfile(savepath, ['data_' currtime '.mat'],'dataIn','-v7')
+save(fullfile(savepath, ['data_' currtime '.mat']),'dataIn','-v7')
 copyfile('C:\Users\user\Desktop\temp_notes.txt',fullfile(savepath,['notes_' currtime '.txt']));
