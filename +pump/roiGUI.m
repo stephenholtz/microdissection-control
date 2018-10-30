@@ -59,8 +59,9 @@ classdef roiGUI
             plot(obj.roi_x,obj.roi_y,'c+','MarkerSize',14,'LineWidth',2,'Parent',obj.cax);
         end
         
-        function obj = saveImg(obj,~)
-            imsave(obj.frame)
+        function obj = saveImg(obj,savepath)
+            frame = getsnapshot(obj.vidDev);
+            imwrite(frame,[savepath '.tif'],'tif');
         end
     end
 end
