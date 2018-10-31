@@ -8,12 +8,11 @@ pump.initWarningDlgs();
 L = pump.LaserIO();
 
 % Open up ROI/Camera GUI
-use_roi_gui = 1;
-if use_roi_gui; R = pump.roiGUI(); end %#ok<*UNRCH>
+R = pump.roiGUI();
 savepath = 'Z:\Wilson Lab\holtz\pump_prep_images\';
 
 %% Snap a picture
-if use_roi_gui; R.saveImg(fullfile(savepath,[datestr(now,30) '_image'])); end
+R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 
 %% configure/run dissection
 dissection_time = datestr(now,30);
@@ -28,7 +27,7 @@ L.pulseFrequency = 100; % 60-100Hz is stable for closed loop / ext trig
 L.purgeDurSeconds = 5;
 
 % Prompt manual entry into laser control software
-if use_roi_gui; R.saveImg(fullfile(savepath,[dissection_time '_pre_dissection'])); end
+R.saveImg(fullfile(savepath,[dissection_time '_pre_dissection']));
 config_complete = pump.initGAMDlgs(L.nDeliveredPulses + L.nShutteredPulses);
 if config_complete
     [dataIn,dataOut] = L.runDissection();
@@ -36,4 +35,4 @@ end
 
 %% Save notes / data on server for documentation
 save(fullfile(savepath, ['data_' dissection_time '.mat']),'dataIn','-v7')
-copyfile('C:\Users\user\Desktop\temp_notes.txt',fullfile(savepath,['notes_' dissection_time '.txt']));
+copyfile('C:\Users\user\Desktop\temp_notes.txt',fullfile(savepath,['dissection_notes_' dissection_time '.txt']));
