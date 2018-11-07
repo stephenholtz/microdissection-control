@@ -35,4 +35,4 @@ end
 
 %% Save notes / data on server for documentation
 save(fullfile(savepath, ['data_' dissection_time '.mat']),'dataIn','-v7')
-copyfile('C:\Users\user\Desktop\temp_notes.txt',fullfile(savepath,['dissection_notes_' dissection_time '.txt']));
+copyfile(fullfile(pump.filepath,'temp_notes.txt'),fullfile(savepath,['dissection_notes_' dissection_time '.txt']));
