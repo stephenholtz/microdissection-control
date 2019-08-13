@@ -25,6 +25,6 @@ function initWarningDlgs()
         return
     end
     
-    warndlg('Allow laser to heat up to software specified temperature before dissecting.','P.U.M.P. Initalization');
-
+    w = warndlg('Allow laser to heat up to software specified temperature before dissecting.','P.U.M.P. Initalization');
+    uiwait(w)
 end

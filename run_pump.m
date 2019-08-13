@@ -18,13 +18,13 @@ R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 dissection_time = datestr(now,30);
 
 % Set number of shuttered pulses (stabilization time)
-L.nShutteredPulses = 250;
+L.nShutteredPulses = 350;
 % Set number of delivered (unshuttered) pulses
-L.nDeliveredPulses = 190;
+L.nDeliveredPulses = 160;
 % Set the frequency of pulses
-L.pulseFrequency = 100; % 60-100Hz is stable for closed loop / ext trig
+L.pulseFrequency = 200; % 60-100Hz is stable for closed loop / ext trig
 % Set duration of the N2 purge prior to lasing (5 seconds is OK)
-L.purgeDurSeconds = 5;
+L.purgeDurSeconds = 3;
 
 % Prompt manual entry into laser control software
 R.saveImg(fullfile(savepath,[dissection_time '_pre_dissection']));
