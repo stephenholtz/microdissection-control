@@ -1,19 +1,17 @@
 Dissection Notes
 	laser:
-		- refilled laser 
-		- ~12.8kV -> 9.5mJ, stable
+		- refilled laser 8/14/19
+		- ~13.5kV -> 9.5mJ, stable @ 200 Hz
 	fly:
-		- collected 3 days ago after clearing 4 days prior
-		- R39A11-Gal4>GFP
+		- notes elsewhere
 	pre laser dissection:
-		- cold anaesthetized, body glued with bondic, front legs removed
-		- antennae glued with bondic also, on lateral and medio-ventral surface
+		- notes elsewhere
 	laser dissection:
-		- 800 round window
+		- 800um round window
 		- test cut head capsule for ROI centring
 		- test cut right and left antenna with same settings
-		- 250 pulses @ 100Hz w/9.5mJ pulse energy at laser photodiode
+		- 3 seconds dry N2 purge,
+		- 350 shuttered stabilization laser pulses
+		- 160 pulses @ 200Hz w/9.5mJ pulse energy at laser photodiode
 	post laser dissection:
-		- added warmed saline directly after cut by hand
-		- rinsed with copious saline
- 
+		- notes elsewhere
