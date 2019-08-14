@@ -1,4 +1,5 @@
 %% Initalize system
+addpath(genpath('C:\code\microdissection-control'));
 clear all force; close all force; clc; %#ok<*CLALL>
 set(0,'DefaultFigureWindowStyle','docked');
 % Assert checkpoints for manual configuration steps
@@ -9,7 +10,7 @@ L = pump.LaserIO();
 
 % Open up ROI/Camera GUI
 R = pump.roiGUI();
-savepath = 'Z:\Wilson Lab\holtz\pump_prep_images\';
+savepath = 'Z:\holtz\pump_prep_images\';
 
 %% Snap a picture
 R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));

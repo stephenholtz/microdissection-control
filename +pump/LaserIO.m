@@ -8,7 +8,7 @@ classdef LaserIO
         %  - 2 AO (2.86 MS/s)
         %  - 16 AI (16-Bit, 2 MS/s)
         %  - 24 DIO
-        daq_dev = 'Dev2';
+        daq_dev = 'Dev1';
         
         rate = 2E4/2; % Run at half max rate (two sampling AI)
         
