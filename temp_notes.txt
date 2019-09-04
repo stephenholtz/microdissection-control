@@ -1,17 +1,15 @@
 Dissection Notes
 	laser:
-		- refilled laser 8/14/19
-		- ~13.5kV -> 9.5mJ, stable @ 200 Hz
+		- refilled laser ~2 days ago
 	fly:
 		- notes elsewhere
 	pre laser dissection:
 		- notes elsewhere
 	laser dissection:
 		- 800um round window
-		- test cut head capsule for ROI centring
-		- test cut right and left antenna with same settings
-		- 3 seconds dry N2 purge,
+		- test cut head capsule in center to remove muscle 16 with 2x 90
+		- 4 seconds dry N2 purge,
 		- 350 shuttered stabilization laser pulses
-		- 160 pulses @ 200Hz w/9.5mJ pulse energy at laser photodiode
+		- 110 pulses @ 200Hz w/9.5mJ pulse energy at laser photodiode
 	post laser dissection:
 		- notes elsewhere

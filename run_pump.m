@@ -16,20 +16,26 @@ savepath = 'Z:\holtz\pump_prep_images\';
 R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 
 %% configure/run dissection
-dissection_time = datestr(now,30);
 
-% Set number of shuttered pulses (stabilization time)
-L.nShutteredPulses = 350;
 % Set number of delivered (unshuttered) pulses
-L.nDeliveredPulses = 160;
+L.nDeliveredPulses = 95;
+
+% -----------------------------
+% Usually unchanged below here:
+% -----------------------------
+% Set here to prompt manual setting/record keeping
+L.energyLevelMiliJoules = 9.25;
+% Set number of shuttered pulses (stabilization time)
+L.nShutteredPulses = 500;
 % Set the frequency of pulses
-L.pulseFrequency = 200; % 60-100Hz is stable for closed loop / ext trig
+L.pulseFrequency = 200; % >60Hz is stable for closed loop / ext trig
 % Set duration of the N2 purge prior to lasing (5 seconds is OK)
-L.purgeDurSeconds = 3;
+L.purgeDurSeconds = 4;
 
 % Prompt manual entry into laser control software
+dissection_time = datestr(now,30);
 R.saveImg(fullfile(savepath,[dissection_time '_pre_dissection']));
-config_complete = pump.initGAMDlgs(L.nDeliveredPulses + L.nShutteredPulses);
+config_complete = pump.initGAMDlgs(L.nDeliveredPulses + L.nShutteredPulses,L.energyLevelMiliJoules);
 if config_complete
     [dataIn,dataOut] = L.runDissection();
 end

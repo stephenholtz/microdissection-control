@@ -42,6 +42,7 @@ classdef LaserIO
         nDeliveredPulses
         pulseFrequency
         purgeDurSeconds
+        energyLevelMiliJoules
     end
     
     methods
