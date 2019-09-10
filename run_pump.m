@@ -18,13 +18,14 @@ R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 %% configure/run dissection
 
 % Set number of delivered (unshuttered) pulses
-L.nDeliveredPulses = 95;
+%L.nDeliveredPulses = 200;
+L.nDeliveredPulses = 90;
 
 % -----------------------------
 % Usually unchanged below here:
 % -----------------------------
 % Set here to prompt manual setting/record keeping
-L.energyLevelMiliJoules = 9.25;
+L.energyLevelMiliJoules = 9.5;
 % Set number of shuttered pulses (stabilization time)
 L.nShutteredPulses = 500;
 % Set the frequency of pulses
