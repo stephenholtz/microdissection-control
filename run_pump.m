@@ -2,6 +2,10 @@
 addpath(genpath('C:\code\microdissection-control'));
 clear all force; close all force; clc; %#ok<*CLALL>
 set(0,'DefaultFigureWindowStyle','docked');
+
+% Second camera for looking for splatter on the lens
+imaqtool();
+
 % Assert checkpoints for manual configuration steps
 pump.initWarningDlgs(); 
 
@@ -10,7 +14,7 @@ L = pump.LaserIO();
 
 % Open up ROI/Camera GUI
 R = pump.roiGUI();
-savepath = 'Z:\holtz\pump_prep_images\';
+savepath = 'D:\pump_prep_data_images\';
 
 %% Snap a picture
 R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
@@ -18,16 +22,18 @@ R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 %% configure/run dissection
 
 % Set number of delivered (unshuttered) pulses
-%L.nDeliveredPulses = 200;
-L.nDeliveredPulses = 90;
+%L.nDeliveredPulses = 500;
+L.nDeliveredPulses = 92;
+
+% >=80 standard, 60 testing for ventral JONs in very young flies
 
 % -----------------------------
 % Usually unchanged below here:
 % -----------------------------
 % Set here to prompt manual setting/record keeping
-L.energyLevelMiliJoules = 9.5;
+L.energyLevelMiliJoules = 10.5;
 % Set number of shuttered pulses (stabilization time)
-L.nShutteredPulses = 500;
+L.nShutteredPulses = 300;
 % Set the frequency of pulses
 L.pulseFrequency = 200; % >60Hz is stable for closed loop / ext trig
 % Set duration of the N2 purge prior to lasing (5 seconds is OK)
