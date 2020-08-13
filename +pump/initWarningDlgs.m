@@ -1,5 +1,6 @@
-function initWarningDlgs()
-
+function out = initWarningDlgs()
+    out = false;
+    
     r = questdlg('Change door sineage to hazardous.','P.U.M.P. Initalization','Complete','Abort','Abort');
     if ~strcmp(r,'Complete')
         return
@@ -27,4 +28,6 @@ function initWarningDlgs()
     
     w = warndlg('Allow laser to heat up to software specified temperature before dissecting.','P.U.M.P. Initalization');
     uiwait(w)
+    
+    out = true;
 end

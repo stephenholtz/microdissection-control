@@ -7,7 +7,7 @@ set(0,'DefaultFigureWindowStyle','docked');
 imaqtool();
 
 % Assert checkpoints for manual configuration steps
-pump.initWarningDlgs(); 
+if ~pump.initWarningDlgs(); return; end
 
 % Initalize daq interface
 L = pump.LaserIO();
@@ -23,7 +23,7 @@ R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 
 % Set number of delivered (unshuttered) pulses
 %L.nDeliveredPulses = 500;
-L.nDeliveredPulses = 92;
+L.nDeliveredPulses = 110;
 
 % >=80 standard, 60 testing for ventral JONs in very young flies
 
@@ -31,7 +31,7 @@ L.nDeliveredPulses = 92;
 % Usually unchanged below here:
 % -----------------------------
 % Set here to prompt manual setting/record keeping
-L.energyLevelMiliJoules = 10.5;
+L.energyLevelMiliJoules = 10;
 % Set number of shuttered pulses (stabilization time)
 L.nShutteredPulses = 300;
 % Set the frequency of pulses
