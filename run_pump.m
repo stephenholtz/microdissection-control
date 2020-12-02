@@ -22,18 +22,21 @@ R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 %% configure/run dissection
 
 % Set number of delivered (unshuttered) pulses
-%L.nDeliveredPulses = 500;
-L.nDeliveredPulses = 110;
+%L.nDeliveredPulses = 750;
+L.nDeliveredPulses = 108;
 
-% >=80 standard, 60 testing for ventral JONs in very young flies
+% VT050226 - 105 (in young, for dorsal), 120? for dorso-lateral group
+% VT002210 - 130
+% VT001599 - 100 dorsal, 145 mid
+% VT060195 - 136 for the very medial group (nonstandard angle of approach required though)
 
 % -----------------------------
 % Usually unchanged below here:
 % -----------------------------
 % Set here to prompt manual setting/record keeping
-L.energyLevelMiliJoules = 10;
+L.energyLevelMiliJoules = 9.2;
 % Set number of shuttered pulses (stabilization time)
-L.nShutteredPulses = 300;
+L.nShutteredPulses = 200;
 % Set the frequency of pulses
 L.pulseFrequency = 200; % >60Hz is stable for closed loop / ext trig
 % Set duration of the N2 purge prior to lasing (5 seconds is OK)
