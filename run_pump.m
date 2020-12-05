@@ -22,10 +22,11 @@ R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 %% configure/run dissection
 
 % Set number of delivered (unshuttered) pulses
-%L.nDeliveredPulses = 750;
-L.nDeliveredPulses = 108;
+L.nDeliveredPulses = 650;
+%L.nDeliveredPulses = 115;
 
-% VT050226 - 105 (in young, for dorsal), 120? for dorso-lateral group
+% VT008470 - 126? for central and relatively dorsal cluster
+% VT050226 - 104 (in young, for dorsal), 118-120 for dorso-lateral group
 % VT002210 - 130
 % VT001599 - 100 dorsal, 145 mid
 % VT060195 - 136 for the very medial group (nonstandard angle of approach required though)
