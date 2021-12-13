@@ -51,21 +51,31 @@ classdef LaserIO
             close all force;
             daqreset;
             
-            obj.session = daq.createSession('ni');
+            %obj.session = daq.createSession('ni');
+            % changing the interface for new daq toolbox (keeping old name)
+            obj.session = daq('ni');
             obj.session.Rate = obj.rate;
             
             % Analog Input
-            obj.session.addAnalogInputChannel(obj.daq_dev,0,'Voltage');
-            obj.session.addAnalogInputChannel(obj.daq_dev,1,'Voltage');
+            %obj.session.addAnalogInputChannel(obj.daq_dev,0,'Voltage');
+            %obj.session.addAnalogInputChannel(obj.daq_dev,1,'Voltage');
+
+            obj.session.addinput(obj.daq_dev,0,'Voltage');
+            obj.session.addinput(obj.daq_dev,1,'Voltage');
             
             % % Analog Output
-            obj.session.addAnalogOutputChannel(obj.daq_dev,0,'Voltage');
+            %obj.session.addAnalogOutputChannel(obj.daq_dev,0,'Voltage');
+            obj.session.addoutput(obj.daq_dev,0,'Voltage');
             
             % Digital IO
-            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line0','OutputOnly');
-            obj.session.addDigitalChannel(obj.daq_dev,'port0/line1','OutputOnly');
-            obj.session.addDigitalChannel(obj.daq_dev,'port0/line2','OutputOnly');
-            obj.session.addDigitalChannel(obj.daq_dev,'port0/line3','OutputOnly');
+            % %obj.session.addDigitalChannel(obj.daq_dev,'port0/line0','OutputOnly');
+            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line1','OutputOnly');
+            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line2','OutputOnly');
+            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line3','OutputOnly');
+
+            obj.session.addoutput(obj.daq_dev,'port0/line1','Digital');
+            obj.session.addoutput(obj.daq_dev,'port0/line2','Digital');
+            obj.session.addoutput(obj.daq_dev,'port0/line3','Digital');
             fprintf('.. Done\n');
 
             % Set non-dissection statuses
@@ -117,8 +127,12 @@ classdef LaserIO
             specimenSolenoidDataOut = [specimenSolenoidClosed ones(1,length(pulsesDataOut)-length(specimenSolenoidClosed))];
 
             dataOut = [pulsesDataOut post; laserLineSolenoidDataOut post; shutterDataOut post; specimenSolenoidDataOut post];
-            obj.session.queueOutputData(dataOut');
-            
+            %obj.session.queueOutputData(dataOut');
+            obj.session.stop();
+            obj.session.flush();
+            obj.openLaserLineSolenoid(false);
+            %obj.session.preload(dataOut');
+
             % Make sure the laser has enough time to start up, delay if not
             if toc(t_start) + obj.purgeDurSeconds < obj.laser_start_delay_s
                 fprintf('\n\tWaiting for laser to initalize');
@@ -129,21 +143,27 @@ classdef LaserIO
             else
                 warning('Purge duration is too long, laser may time out!')
             end
-            
+
             fprintf('\n\tPurging Laser Line for %d seconds',obj.purgeDurSeconds);
-            obj.openLaserLineSolenoid(false);
             pause(obj.purgeDurSeconds);
             fprintf('.. Done\n');
-
+            
+            % new interface is a bit different for preloading...
+            % https://www.mathworks.com/help/daq/daq.interfaces.dataacquisition.html
             fprintf('\n\tRunning Laser\n\t\tPulses Shuttered %d\n\t\tPulses Delivered %d\n\t\tPulse Frequency %d',...
                 obj.nShutteredPulses,obj.nDeliveredPulses,obj.pulseFrequency);
-            dataIn = obj.session.startForeground();
+            %dataIn = obj.session.startForeground();
+            %obj.session.write('continuous');
+            %dataIn = obj.session.read('all');
+            dataIn = obj.session.readwrite(dataOut');
+            obj.session.stop();
 
             % Make sure they are set to / are closed
             obj.closeTableShutter();
             obj.closeAllSolenoids();
 
             fprintf('.. Done\n');
+
         end
 
         % -------------------------------------------------------------------
@@ -155,14 +175,22 @@ classdef LaserIO
                 fprintf('Opening table shutter');
             end
             % Assert previous state
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
             % Set new state
             obj.table_shutter_open = true;
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
             if exist('verbose','var') && verbose
                 fprintf('.. Done\n');
             end
@@ -174,19 +202,29 @@ classdef LaserIO
                 fprintf('Closing table shutter');
             end
             % Assert previous state
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,... 
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
+
             % Set new state
             obj.table_shutter_open = false;
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
+
             if exist('verbose','var') && verbose
                 fprintf('..Done\n');
             end
         end
-        
+
         % Solenoid control functions (static to simplify / make less elegant)
         function obj = closeAllSolenoids(obj,verbose)
             % Both Off
@@ -194,15 +232,25 @@ classdef LaserIO
                 fprintf('Closing all solenoids');
             end
             % Assert previous state
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
+            
             % Set new state
             obj.laser_solenoid_open = false;
             obj.prep_solenoid_open = false;
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
+
             if exist('verbose','var') && verbose
                 fprintf('.. Done\n');
             end
@@ -214,15 +262,24 @@ classdef LaserIO
                 fprintf('Opening laser line and dissection line purge solenoids');
             end
             % Assert previous state
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])          
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
+
             % Set new state
             obj.laser_solenoid_open = true;
             obj.prep_solenoid_open = true;
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
             if exist('verbose','var') && verbose
                 fprintf('.. Done\n');
             end
@@ -234,15 +291,24 @@ classdef LaserIO
                 fprintf('Opening excimer laser line purge solenoid only');
             end
             % Assert previous state
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
+
             % Set new state
             obj.laser_solenoid_open = true;
             obj.prep_solenoid_open = false;
-            obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
-                                            obj.table_shutter_open,...
-                                            obj.prep_solenoid_open])
+%             obj.session.outputSingleScan([0 obj.laser_solenoid_open,...
+%                                             obj.table_shutter_open,...
+%                                             obj.prep_solenoid_open])
+            obj.session.write([0,...
+                obj.laser_solenoid_open,...
+                obj.table_shutter_open,...
+                obj.prep_solenoid_open])
             if exist('verbose','var') && verbose
                 fprintf('.. Done\n');
             end
