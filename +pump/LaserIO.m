@@ -13,14 +13,16 @@ classdef LaserIO
         rate = 2E4/2; % Run at half max rate (two sampling AI)
         
         % Analog input names
-        ai_0 = 'Laser Sync Input';
-        ai_1 = 'Table Photodiode Input';
+        %ai_0 = 'Laser Sync Input';
+        %ai_1 = 'Table Photodiode Input';
+        ai_0 = 'Table Photodiode Input';
         
         % Digital IO names
-        dio_p0_l0 = 'Laser External Trigger Output';
-        dio_p0_l1 = 'Laser Line N2 Purge Solenoid Gate';
-        dio_p0_l2 = 'Laser Table Shutter Gate';
-        dio_p0_l3 = 'Prep Area N2 Purge Solenoid Gate';
+        dio_p0_l0 = 'Laser External Trigger Output'; % OK
+        dio_p0_11 = 'Laser Sync Input'; % OK
+        dio_p0_l2 = 'Prep Area N2 Purge Solenoid Gate';% OK
+        dio_p0_l3 = 'Laser Line N2 Purge Solenoid Gate'; % OK (grounding issue)
+        dio_p0_l4 = 'Laser Table Shutter Gate'; % OK
         
         % seconds prior to dissection to begin specimen purge
         % means the shuttered pulses must be at least this duration
