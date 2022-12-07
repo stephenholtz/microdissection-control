@@ -1,20 +1,16 @@
 classdef LaserIO
     properties
         session
+        daq_dev
+        savepath
     end
-    
+
     properties (Constant)
         % DAQ settings for NI PCIe-6361 w/ BNC-2090A
-        %  - 2 AO (2.86 MS/s)
-        %  - 16 AI (16-Bit, 2 MS/s)
-        %  - 24 DIO
-        daq_dev = 'Dev1';
-        
-        rate = 2E4/2; % Run at half max rate (two sampling AI)
-        
+        % 2 AO  @ 2.86 MS/s, 16 AI 16-Bit @ 2 MS/s, 24 DIO
+        rate = 10000; % sufficient for photodiode signal
+
         % Analog input names
-        %ai_0 = 'Laser Sync Input';
-        %ai_1 = 'Table Photodiode Input';
         ai_0 = 'Table Photodiode Input';
 
         % Digital IO names
@@ -32,7 +28,7 @@ classdef LaserIO
         % and when lasing or closed loop feed back starts, respectively
         laser_start_delay_s = 8; % previously set to 7.25
     end
-    
+
     properties
         % System State
         table_shutter_open
@@ -48,36 +44,17 @@ classdef LaserIO
     end
 
     methods
-        function obj = LaserIO()
-            fprintf('Initializing DAQ channels for laser dissection');
-            close all force;
-            daqreset;
+        function obj = LaserIO(daq_dev, savepath)
+            obj.savepath = savepath;
 
-            %obj.session = daq.createSession('ni');
-            % changing the interface for new daq toolbox (keeping old name)
+            fprintf('Initializing DAQ channels for laser dissection');
+            close all force; daqreset;
+            obj.daq_dev = daq_dev;
             obj.session = daq('ni');
             obj.session.Rate = obj.rate;
-
-            % Analog Input
-            %obj.session.addAnalogInputChannel(obj.daq_dev,0,'Voltage');
-            %obj.session.addAnalogInputChannel(obj.daq_dev,1,'Voltage');
-
             obj.session.addinput(obj.daq_dev,0,'Voltage');
-            %obj.session.addinput(obj.daq_dev,1,'Voltage');
-
-            % Analog Output
-            %obj.session.addAnalogOutputChannel(obj.daq_dev,0,'Voltage');
             obj.session.addoutput(obj.daq_dev,0,'Voltage');
-
-            % Digital IO
-            % %obj.session.addDigitalChannel(obj.daq_dev,'port0/line0','OutputOnly');
-            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line1','OutputOnly');
-            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line2','OutputOnly');
-            %obj.session.addDigitalChannel(obj.daq_dev,'port0/line3','OutputOnly');
-
             obj.session.addinput(obj.daq_dev,'port0/line0','Digital');
-            
-            %obj.session.addoutput(obj.daq_dev,'port0/line1','Digital');
             obj.session.addoutput(obj.daq_dev,'port0/line2','Digital');
             obj.session.addoutput(obj.daq_dev,'port0/line3','Digital');
             obj.session.addoutput(obj.daq_dev,'port0/line4','Digital');
@@ -118,7 +95,6 @@ classdef LaserIO
 
             % Make each 10us minimum, 5V with no negative going parts, 
             % impedance is 2kOhm using 5V analog output fixes noise issues
-            %pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-10) ones(1,5)  0.*ones(1,5)];
             pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-40) ones(1,20)  0.*ones(1,20)];
 
             % Append and format for queue data NOTE: requires one "extra"
@@ -164,9 +140,6 @@ classdef LaserIO
             % https://www.mathworks.com/help/daq/daq.interfaces.dataacquisition.html
             fprintf('\n\tRunning Laser\n\t\tPulses Shuttered %d\n\t\tPulses Delivered %d\n\t\tPulse Frequency %d',...
                 obj.nShutteredPulses,obj.nDeliveredPulses,obj.pulseFrequency);
-            %dataIn = obj.session.startForeground();
-            %obj.session.write('continuous');
-            %dataIn = obj.session.read('all');
             dataIn = obj.session.readwrite(dataOut');
             obj.session.stop();
 
