@@ -2,7 +2,7 @@ microdissection-control
 ===================================================
 Simple scripts and high-level documentation on the **P.U.M.P.** (or **P**recision **U**V **M**icrodissection **P**latform), used for dissections.
 
-# Basic Useage
+# Basic Usage
 - Open EX5 Laser Control Software and Matlab. Use the `run_pump.m` script to initialize the interface.
 - A series of prompts will make sure the following steps happen:
   - Ensure EX5 software interlock, high-speed shutter and gas purge lines are enabled and working correctly
@@ -10,6 +10,11 @@ Simple scripts and high-level documentation on the **P.U.M.P.** (or **P**recisio
   - Align sample with higher magn objective, then switch to CaF2 lens (dissection objective)
   - Select "Start Laser With EXT Trigger" and run the control function in Matlab
 - If using for physiology, add saline to the sample to prevent dessication immediately after dissection.
+
+# Software
+- Matlab 2021b+ with Data Acquisition Toolbox and NI-DAQmx support package addon
+- GAM Excimer Laser Control Software
+- SpinView or FlyCap
 
 # Alignment
 This is a brief outline of what a "full" alignment of the system involves.
@@ -32,12 +37,13 @@ This is a brief outline of what a "full" alignment of the system involves.
 
 # Rig Components
 ## Main
-- GAM EX5 Excimer Laser with Aperture to promote TEM00 mode ouput
-- PtGrey (FLIR) NIR Camera for viewing and placing dissection
+- GAM EX5 Excimer Laser (with Aperture to promote TEM00 mode ouput) and PCI Data Card
+- FLIR NIR Camera for viewing and placing dissection
 - Uniblitz laser line shutter for gating laser output once stabilized
 - Soleniods and gas distributor for purging laser line with high purity dry Nitrogen
 - Sutter MP-225 for manually moving the prep (can potentially be automated)
 - (currently unused) Thorlabs photodiode for calibration
+- Windows 10 PC with PCI slot
 
 ## Light path
  - ArF Excimer Laser
