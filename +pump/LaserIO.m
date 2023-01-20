@@ -6,19 +6,23 @@ classdef LaserIO
     end
 
     properties (Constant)
-        % DAQ settings for NI PCIe-6361 w/ BNC-2090A
-        % 2 AO  @ 2.86 MS/s, 16 AI 16-Bit @ 2 MS/s, 24 DIO
-        rate = 10000; % sufficient for photodiode signal
+        % DAQ settings. Works for a number of systems, tested are:
+        % 1) NI PCIe-6361 w/ BNC-2090A
+        %   2 AO  @ 2.86 MS/s, 16 AI 16-Bit @ 2 MS/s, 24 DIO
+        % 2) USB-6343
+        %   2AO @ ~1 MS/s, 16 AI @ .5 MS/s, 48 DIO
+
+        % Photodiode signal is RC filtered, so this 10kHz is fine
+        rate = 10000;
 
         % Analog input names
-        ai_0 = 'Table Photodiode Input';
+        ai_0_name = 'Table Photodiode In';
+        ao_0_name = 'Laser Ext. Trig. Out'
 
         % Digital IO names
-        dio_p0_l0 = 'Laser External Trigger Output'; % OK
-        dio_p0_11 = 'Laser Sync Input'; % OK
-        dio_p0_l2 = 'Prep Area N2 Purge Solenoid Gate';% OK
-        dio_p0_l3 = 'Laser Line N2 Purge Solenoid Gate'; % OK (grounding issue)
-        dio_p0_l4 = 'Laser Table Shutter Gate'; % OK
+        dio_p0_l0_name = 'Prep Area N2 Purge Solenoid Gate';% OK
+        dio_p0_l1_name = 'Laser Line N2 Purge Solenoid Gate'; % OK (grounding issue)
+        dio_p0_l2_name = 'Laser Table Shutter Gate'; % 
 
         % seconds prior to dissection to begin specimen purge
         % means the shuttered pulses must be at least this duration
@@ -52,12 +56,22 @@ classdef LaserIO
             obj.daq_dev = daq_dev;
             obj.session = daq('ni');
             obj.session.Rate = obj.rate;
-            obj.session.addinput(obj.daq_dev,0,'Voltage');
-            obj.session.addoutput(obj.daq_dev,0,'Voltage');
-            obj.session.addinput(obj.daq_dev,'port0/line0','Digital');
-            obj.session.addoutput(obj.daq_dev,'port0/line2','Digital');
-            obj.session.addoutput(obj.daq_dev,'port0/line3','Digital');
-            obj.session.addoutput(obj.daq_dev,'port0/line4','Digital');
+
+            ch_ = obj.session.addinput(obj.daq_dev, 0, 'Voltage');
+            ch_.Name = ai_0_name;
+
+            ch_ = obj.session.addoutput(obj.daq_dev,0,'Voltage');
+            ch_.Name = ao_0_name;
+
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line0','Digital');
+            ch_.Name = dio_p0_l0_name;
+
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line1','Digital');
+            ch_.Name = dio_p0_l1_name;
+
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line2','Digital');
+            ch_.Name = dio_p0_l2_name;
+
             fprintf('.. Done\n');
 
             % Set non-dissection statuses

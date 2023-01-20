@@ -9,7 +9,7 @@ L = pump.LaserIO('Dev3','B:\pump_prep_data_images\');
 % R.saveImg(fullfile(savepath,[datestr(now,30) '_image']));
 
 %% configure/run dissection
-L.nDeliveredPulses = 100;       % number of dissection pulses (w/ beam shutter open)
+L.nDeliveredPulses = 115;       % number of dissection pulses (w/ beam shutter open)
 
 % Usually unchanged:
 L.energyLevelMiliJoules = 8;    % manually entered in GAM software, this sets prompt text
