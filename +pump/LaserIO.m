@@ -58,19 +58,19 @@ classdef LaserIO
             obj.session.Rate = obj.rate;
 
             ch_ = obj.session.addinput(obj.daq_dev, 0, 'Voltage');
-            ch_.Name = ai_0_name;
+            ch_.Name = obj.ai_0_name;
 
             ch_ = obj.session.addoutput(obj.daq_dev,0,'Voltage');
-            ch_.Name = ao_0_name;
+            ch_.Name = obj.ao_0_name;
 
             ch_ = obj.session.addoutput(obj.daq_dev,'port0/line0','Digital');
-            ch_.Name = dio_p0_l0_name;
+            ch_.Name = obj.dio_p0_l0_name;
 
             ch_ = obj.session.addoutput(obj.daq_dev,'port0/line1','Digital');
-            ch_.Name = dio_p0_l1_name;
+            ch_.Name = obj.dio_p0_l1_name;
 
             ch_ = obj.session.addoutput(obj.daq_dev,'port0/line2','Digital');
-            ch_.Name = dio_p0_l2_name;
+            ch_.Name = obj.dio_p0_l2_name;
 
             fprintf('.. Done\n');
 
