@@ -1,3 +1,11 @@
+
+% TODO: convert to using digital line for ATL laser command
+% TODO: remove 'extra' pulse required on the GAM
+% TODO: update dialog to set the Energy and "MODE to Energy stab."
+% TODO: update all the dialog boxes to just say "under TRIGGER select
+% External Trigger and click RUN"
+% TODO: tidy all mess below
+
 classdef LaserIO
     properties
         session
@@ -109,7 +117,9 @@ classdef LaserIO
 
             % Make each 10us minimum, 5V with no negative going parts, 
             % impedance is 2kOhm using 5V analog output fixes noise issues
-            pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-40) ones(1,20)  0.*ones(1,20)];
+            %pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-40) ones(1,20)  0.*ones(1,20)];
+
+            pulse = 1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-100) ones(1,1)  0.*ones(1,99)];
 
             % Append and format for queue data NOTE: requires one "extra"
             pulsesDataOut = [pre repmat(pulse,1,obj.nShutteredPulses + 1 + obj.nDeliveredPulses)];
@@ -124,9 +134,18 @@ classdef LaserIO
             specimenSolenoidClosed = 0*ones(1,length(shutterDataClosed)-(obj.session.Rate*obj.specimen_purge_time_s));
             specimenSolenoidDataOut = [specimenSolenoidClosed ones(1,length(pulsesDataOut)-length(specimenSolenoidClosed))];
 
+%             dataOut = [
+%                 pulsesDataOut post; 
+%                 specimenSolenoidDataOut post;
+%                 laserLineSolenoidDataOut post; 
+%                 shutterDataOut post
+%             ];
+
+            % requires a digital line to work -- 
+            % also needs to take out the single 
             dataOut = [
                 pulsesDataOut post; 
-                specimenSolenoidDataOut post;
+                pulsesDataOut post;
                 laserLineSolenoidDataOut post; 
                 shutterDataOut post
             ];
