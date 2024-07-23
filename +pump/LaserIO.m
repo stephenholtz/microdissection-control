@@ -1,5 +1,3 @@
-
-% TODO: remove 'extra' pulse required on the GAM
 % TODO: update dialog to set the Energy and "MODE to Energy stab."
 % TODO: update all the dialog boxes to just say "under TRIGGER select
 % External Trigger and click RUN"
@@ -24,11 +22,7 @@ classdef LaserIO
 
         % seconds prior to dissection to begin specimen purge
         % means the shuttered pulses must be at least this duration
-        specimen_purge_time_s = 1; % a second is enough
-
-        % time between clicking "START LASER" or "START LASER EXT. TRIG"
-        % and when lasing or closed loop feed back starts, respectively
-        laser_start_delay_s = 8; % previously set to 7.25
+        specimen_purge_time_s = 0.5; % half a second is enough
     end
 
     properties
@@ -105,9 +99,6 @@ classdef LaserIO
         function [dataIn,dataOut,obj] = runDissection(obj)
             obj.closeTableShutter();
             obj.closeAllSolenoids();
-            
-            % Approximate time of function call
-            t_start = tic();
 
             fprintf('Running dissection:');
 
@@ -117,62 +108,36 @@ classdef LaserIO
             pre = 0*ones(1,obj.session.Rate * .05);
             post = 0*ones(1,obj.session.Rate * .05);
 
-            % Make each 10us minimum, 5V with no negative going parts, 
-            % impedance is 2kOhm using 5V analog output fixes noise issues
-            %pulse = 5.1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-40) ones(1,20)  0.*ones(1,20)];
-
             pulse = 1*[0*ones(1,(obj.session.Rate * 1/obj.pulseFrequency)-100) ones(1,1)  0.*ones(1,99)];
 
-            % Append and format for queue data NOTE: requires one "extra"
-            pulsesDataOut = [pre repmat(pulse,1,obj.nShutteredPulses + 1 + obj.nDeliveredPulses)];
+            % Append and format for queue data
+            pulsesDataOut = [pre repmat(pulse,1,obj.nShutteredPulses + obj.nDeliveredPulses)];
 
             % Open the shutter after initial stabilizing laser pulses
-            nShutterClosedSamples = (obj.nShutteredPulses + 1) * length(pulse);
+            nShutterClosedSamples = (obj.nShutteredPulses) * length(pulse);
             shutterDataClosed = [pre 0*ones(1,nShutterClosedSamples)];
-            shutterDataOut = [shutterDataClosed 1*ones(1,length(pulsesDataOut) - (length(shutterDataClosed))-1) 0];
+            shutterDataOut = [shutterDataClosed 1*ones(1,length(pulsesDataOut) - length(shutterDataClosed))];
 
             % Purge laser line continuously, and specimen only just before opening the shutter
             laserLineSolenoidDataOut = ones(1,length(pulsesDataOut));
             specimenSolenoidClosed = 0*ones(1,length(shutterDataClosed)-(obj.session.Rate*obj.specimen_purge_time_s));
             specimenSolenoidDataOut = [specimenSolenoidClosed ones(1,length(pulsesDataOut)-length(specimenSolenoidClosed))];
 
-%             dataOut = [
-%                 pulsesDataOut post; 
-%                 specimenSolenoidDataOut post;
-%                 laserLineSolenoidDataOut post; 
-%                 shutterDataOut post
-%             ];
-
-            % requires a digital line to work -- 
-            % also needs to take out the single 
             dataOut = [
                 pulsesDataOut post; 
-                pulsesDataOut post;
+                shutterDataOut post;
                 laserLineSolenoidDataOut post; 
-                shutterDataOut post
+                specimenSolenoidDataOut post
             ];
 
             obj.session.stop();
             obj.session.flush();
 
-            % Make sure the laser has enough time to start up, delay if not
-            if toc(t_start) + obj.purgeDurSeconds < obj.laser_start_delay_s
-                fprintf('\n\tWaiting for laser to initalize');
-                while toc(t_start) + obj.purgeDurSeconds < obj.laser_start_delay_s
-                    pause(0.05);
-                end
-                fprintf('.. Done\n');
-            else
-                warning('Purge duration is too long, laser may time out!')
-            end
-            
             obj.openLaserLineSolenoid(true);
             fprintf('\n\tPurging Laser Line for %d seconds',obj.purgeDurSeconds);
             pause(obj.purgeDurSeconds);
             fprintf('.. Done\n');
 
-            % new interface is a bit different for preloading...
-            % https://www.mathworks.com/help/daq/daq.interfaces.dataacquisition.html
             fprintf('\n\tRunning Laser\n\t\tPulses Shuttered %d\n\t\tPulses Delivered %d\n\t\tPulse Frequency %d',...
                 obj.nShutteredPulses,obj.nDeliveredPulses,obj.pulseFrequency);
             dataIn = obj.session.readwrite(dataOut');
