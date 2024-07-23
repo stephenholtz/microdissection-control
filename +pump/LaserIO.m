@@ -56,31 +56,33 @@ classdef LaserIO
             obj.session.Rate = obj.rate;
 
             % Analog Inputs
-            ch_ = obj.session.addinput(obj.daq_dev, 0, 'Voltage');
+            ch_ = obj.session.addinput(obj.daq_dev, 'ai0', 'Voltage');
             ch_.Name = 'Laser Table Photodiode';
 
-            % Digital Inputs
-            ch_ = obj.session.addinput(obj.daq_dev,'port0/line0','Digital');
-            ch_.Name = 'Laser Ext Trig Copy';
+            % Digital Inputs/Outputs
 
-            ch_ = obj.session.addinput(obj.daq_dev,'port0/line1','Digital');
-            ch_.Name = 'Laser Sync Out';
-
-            ch_ = obj.session.addinput(obj.daq_dev,'port0/line2','Digital');
-            ch_.Name = 'Shutter Sync Out';
-    
-            % Digital Outputs [Laser, Shutter, Line, Sample]
-            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line3','Digital');
+            % Outputs [Laser Cmd, Shutter Cmd, Line Purge Cmd, Sample Purge Cmd]
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line0','Digital');
             ch_.Name = 'Laser Ext Trig';
-
-            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line4','Digital');
+            
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line6','Digital');
             ch_.Name = 'Shutter Gate';
 
-            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line5','Digital');
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line8','Digital');
             ch_.Name = 'Laser Path N2 Purge Gate';
 
-            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line6','Digital');
-            ch_.Name = 'Sample Area N2 Purge Gate'; % OK
+            ch_ = obj.session.addoutput(obj.daq_dev,'port0/line12','Digital');
+            ch_.Name = 'Sample Area N2 Purge Gate';
+
+            % Inputs [Laser Cmd, Laser Fbk, Shutter Fbk]
+            ch_ = obj.session.addinput(obj.daq_dev,'port0/line1','Digital');
+            ch_.Name = 'Laser Ext Trig Copy';
+
+            ch_ = obj.session.addinput(obj.daq_dev,'port0/line10','Digital');
+            ch_.Name = 'Laser Sync Out';
+
+            ch_ = obj.session.addinput(obj.daq_dev,'port0/line4','Digital');
+            ch_.Name = 'Shutter Sync Out';
 
             % Set non-dissection statuses
             obj.table_shutter_open = false;
