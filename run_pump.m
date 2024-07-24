@@ -9,12 +9,12 @@ L = pump.LaserIO('Dev3','D:\pump_prep_data_images\');
 % Constant dissection settings
 L.energyLevelMiliJoules = 7.0;  % manually entered in ATL software, this sets prompt text
 L.nDeliveredPulses = 0;         % number of dissection pulses (w/ beam shutter open)
-L.nShutteredPulses = 50;        % number of shuttered pulses, a for energy stabilization
+L.nShutteredPulses = 100;        % number of shuttered pulses, a for energy stabilization
 L.pulseFrequency = 100;         % laser pulse freq, >60Hz is stable for closed loop mode
 L.purgeDurSeconds = 3;          % duration of N2 purge prior to lasing (3+ seconds is OK)
 
 %% Run a test cut on thorax for centering cut
-L.nDeliveredPulses = 100; L.runDissection();
+L.nDeliveredPulses = 200; L.runDissection();
 
 %% Cut into head capsule to help remove muscles + improve superfusion
 L.nDeliveredPulses = 400; L.runDissection();
