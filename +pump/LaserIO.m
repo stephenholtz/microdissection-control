@@ -1,8 +1,3 @@
-% TODO: update dialog to set the Energy and "MODE to Energy stab."
-% TODO: update all the dialog boxes to just say "under TRIGGER select
-% External Trigger and click RUN"
-% TODO: tidy all mess below
-
 classdef LaserIO
     properties
         session
@@ -11,11 +6,7 @@ classdef LaserIO
     end
 
     properties (Constant)
-        % DAQ settings. Works for a number of systems, tested are:
-        % 1) NI PCIe-6361 w/ BNC-2090A
-        %   2 AO  @ 2.86 MS/s, 16 AI 16-Bit @ 2 MS/s, 24 DIO
-        % 2) USB-6343
-        %   2AO @ ~1 MS/s, 16 AI @ .5 MS/s, 48 DIO
+        % DAQ settings
 
         % Photodiode signal is RC filtered, so this 10kHz is fine
         rate = 10000;
@@ -43,7 +34,7 @@ classdef LaserIO
         function obj = LaserIO(daq_dev, savepath)
             obj.savepath = savepath;
 
-            fprintf('Initializing DAQ channels for laser dissection');
+            fprintf('Initializing DAQ channels for laser dissection... ');
             close all force; daqreset;
             obj.daq_dev = daq_dev;
             obj.session = daq('ni');
@@ -93,10 +84,18 @@ classdef LaserIO
             obj.pulseFrequency = nan;
             obj.purgeDurSeconds = nan;
 
-            fprintf('Initalization Complete.\n');
+            fprintf(' Complete.\n');
         end
 
-        function [dataIn,dataOut,obj] = runDissection(obj)
+        function [dataIn,dataOut,obj] = runDissection(obj, check_conf)
+            if ~exist('check_conf','var')
+                check_conf = true;
+            end
+
+            if check_conf
+                obj.checkConfPreDissection()
+            end
+
             obj.closeTableShutter();
             obj.closeAllSolenoids();
 
@@ -151,6 +150,48 @@ classdef LaserIO
 
         end
 
+        function complete = checkConfPreDissection(obj)
+            % Manually verify and set some values in software
+
+            complete = false;
+        
+            % Check the objective and move it into the light path
+            r1 = questdlg(...
+                {'1) Verify UV objective is clean with secondary camera,',...
+                 '2) Switch UV objective into light path',...
+                 '3) Clear External Interlock error'}, ...
+                 'P.U.M.P. Dissection','Complete','Abort','Abort');
+        
+            if ~strcmp(r1,'Complete')
+               warndlg('Dissection Aborted.','P.U.M.P. Dissection');
+               return
+            end
+        
+            % Set software parameters
+            r2 = questdlg(...
+                {'In ATLEX Laser Control Software: ',...
+                 '   Set MODE to Energy stab.',...
+                 '   Set STANDBY to ON',...
+                 '   Set TIRGGER to External Trigger',...
+                 '   Set TRIGGER to RUN',...
+                ['   Set Energy[mJ] to ' num2str(obj.energyLevelMiliJoules) ''],...
+                 '  '}, ...
+                 'P.U.M.P. Dissection','Complete','Abort','Abort');
+        
+            if ~strcmp(r2,'Complete')
+               warndlg('Dissection Aborted.','P.U.M.P. Dissection');
+               return
+            end
+        
+            complete = true;
+            
+        end
+
+        function saveDissectionData(obj,dissection_name, data_in, data_out)
+            % simple save function as starting point
+            save(fullfile(obj.savepath, ['dissection_data_' dissection_name '.mat']), ...
+                "data_in","data_out",'-v7')
+        end
         % -------------------------------------------------------------------
         % Utility functions to use for testing and for outside of dissections
         % -------------------------------------------------------------------
